@@ -1,9 +1,6 @@
-# Fabric Example Mod
+# Enderporter
 
-## Setup
+A Minecraft mod which adds items that allow for teleportation within and between dimensions.
 
-For setup instructions please see the [fabric wiki page](https://fabricmc.net/wiki/tutorial:setup) that relates to the IDE that you are using.
 
-## License
-
-This template is available under the CC0 license. Feel free to learn from it and incorporate it in your own projects.
+Requires the Fabric mod loader.
