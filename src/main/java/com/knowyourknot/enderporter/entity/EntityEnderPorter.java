@@ -2,7 +2,7 @@ package com.knowyourknot.enderporter.entity;
 
 import com.knowyourknot.enderporter.DimensionLocation;
 import com.knowyourknot.enderporter.EnderPorter;
-// import com.knowyourknot.enderporter.PlayerCharger;
+import com.knowyourknot.enderporter.PlayerCharger;
 import com.knowyourknot.enderporter.gui.EnderPorterScreenHandler;
 import com.knowyourknot.enderporter.inventory.IInventory;
 import com.knowyourknot.enderporter.item.ItemTeleport;
@@ -33,7 +33,7 @@ import net.minecraft.util.math.Vec3d;
 public class EntityEnderPorter extends BlockEntity
         implements Tickable, IInventory, NamedScreenHandlerFactory, BlockEntityClientSerializable, SidedInventory {
     private final DefaultedList<ItemStack> items = DefaultedList.ofSize(12, ItemStack.EMPTY);
-    // private final PlayerCharger playerCharger = new PlayerCharger();
+    private final PlayerCharger playerCharger = new PlayerCharger();
 
     public EntityEnderPorter() {
         super(EnderPorter.ENTITY_ENDER_PORTER);
@@ -215,14 +215,14 @@ public class EntityEnderPorter extends BlockEntity
         this.items.clear(); // fromTag does not remove non-present items as it assumes the inventory it is
                             // filling is empty
         Inventories.fromTag(tag, this.items);
-        // this.playerCharger.fromTag(tag);
+        this.playerCharger.fromTag(tag);
     }
 
     // write on server
     @Override
     public CompoundTag toClientTag(CompoundTag tag) {
         Inventories.toTag(tag, this.items);
-        // this.playerCharger.toTag(tag);
+        this.playerCharger.toTag(tag);
         return tag;
     }
 
@@ -248,13 +248,12 @@ public class EntityEnderPorter extends BlockEntity
     
     @Override
     public void tick() {
-        /* if (!this.world.isClient() && !this.playerCharger.isEmpty()) {
+        if (!this.world.isClient() && !this.playerCharger.isEmpty()) {
             this.playerCharger.incrementAll(1);
             this.markDirty();
-        } */
+        }
     }
 
-    /* 
     // returns false if player already in charger
     public boolean addPlayerToCharger(PlayerEntity player) {
         if (!this.playerCharger.isPlayerCharging(player)) {
@@ -271,5 +270,4 @@ public class EntityEnderPorter extends BlockEntity
     public int getPlayerCharge(PlayerEntity player) {
         return this.playerCharger.getCharge(player);
     }
-    */
 }

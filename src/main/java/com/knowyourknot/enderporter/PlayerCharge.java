@@ -1,4 +1,4 @@
-/* package com.knowyourknot.enderporter;
+package com.knowyourknot.enderporter;
 
 import java.util.UUID;
 
@@ -54,4 +54,3 @@ public class PlayerCharge {
         return (uuid == newUuid || name.equals(newName));
     }
 }
-*/

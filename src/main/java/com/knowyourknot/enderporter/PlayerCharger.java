@@ -1,4 +1,4 @@
-/*package com.knowyourknot.enderporter;
+package com.knowyourknot.enderporter;
 
 import java.util.ArrayList;
 
@@ -14,8 +14,8 @@ public class PlayerCharger {
     }
 
     public void fromTag(CompoundTag tag) {
-        ListTag listTag = tag.getList("PlayerCharges", (byte)0);
-        
+        ListTag listTag = (ListTag) tag.get("PlayerCharges");
+
         if (listTag == null) {
             return;
         }
@@ -37,7 +37,6 @@ public class PlayerCharger {
             playerCharge.toTag(compoundTag);
             listTag.add(compoundTag);
         }
-
         tag.put("PlayerCharges", listTag);
     }
 
@@ -111,5 +110,12 @@ public class PlayerCharger {
             this.playerCharges.get(i).incrementCharge(increment);
         }
     }
+
+    public String toString() {
+        String outString = "";
+        for (int i = 0; i < getPlayerNo(); i++) {
+            outString += "[" + getPlayerChargeFromIndex(i) + "], ";
+        }
+        return outString;
+    }
 }
-*/
