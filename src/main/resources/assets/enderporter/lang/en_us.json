@@ -1,0 +1,18 @@
+{
+    "item.enderporter.stable_pearl": "Stable Pearl",
+    "item.enderporter.portable_porter": "Portable Porter",
+    "item.enderporter.debug_item": "Debug Item",
+    "item.enderporter.upgrade_range": "Range Upgrade",
+    "item.enderporter.upgrade_dim": "Interdimensional Upgrade",
+    "block.enderporter.ender_porter": "Ender Porter",
+    "gui.enderporter.ender_porter": "Ender Porter",
+    "dimension.minecraft.overworld": "Overworld",
+    "dimension.minecraft.the_nether": "Nether",
+    "dimension.minecraft.the_end": "The End",
+    "dimension.the_bumblezone.the_bumblezone": "The Bumblezone",
+    "enderporter.gui.blocks_away": "%d Blocks Away",
+    "enderporter.gui.different_dimension": "Different Dimension",
+    "enderporter.gui.pearls_required": "%d Pearls Required",
+    "enderporter.teleport_location": "(%d, %d, %d)",
+    "enderporter.teleport_not_set": "Teleport not set"
+}
