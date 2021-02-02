@@ -194,6 +194,10 @@ public class EntityEnderPorter extends BlockEntity
         return false;
     }
 
+    public boolean canTeleport() {
+        return true;
+    }
+
     // read
     @Override
     public void fromTag(BlockState state, CompoundTag tag) {
@@ -215,14 +219,12 @@ public class EntityEnderPorter extends BlockEntity
         this.items.clear(); // fromTag does not remove non-present items as it assumes the inventory it is
                             // filling is empty
         Inventories.fromTag(tag, this.items);
-        this.playerCharger.fromTag(tag);
     }
 
     // write on server
     @Override
     public CompoundTag toClientTag(CompoundTag tag) {
         Inventories.toTag(tag, this.items);
-        this.playerCharger.toTag(tag);
         return tag;
     }
 

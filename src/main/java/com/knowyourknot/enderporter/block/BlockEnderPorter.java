@@ -18,7 +18,7 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.particle.ParticleTypes;
 import net.minecraft.screen.NamedScreenHandlerFactory;
 import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.server.world.ServerWorld;
+import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvents;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.Hand;
@@ -77,8 +77,8 @@ public class BlockEnderPorter extends BlockWithEntity {
         if (entity instanceof PlayerEntity) {
             EntityEnderPorter blockEntity = (EntityEnderPorter) world.getBlockEntity(pos);
             PlayerEntity player = (PlayerEntity) entity;
-            if (player.isInSneakingPose()) {
-                this.playerCharge(world, blockEntity, player);
+            if (!world.isClient && player.isInSneakingPose()) {
+                this.playerCharge(world, pos, blockEntity, player);
             } else {
                 blockEntity.removePlayerFromCharger(player);
             }
@@ -86,26 +86,24 @@ public class BlockEnderPorter extends BlockWithEntity {
         super.onEntityCollision(state, world, pos, entity);
     }
 
-    public void playerCharge(World world, EntityEnderPorter blockEntity, PlayerEntity player) {
+    public void playerCharge(World world, BlockPos pos, EntityEnderPorter blockEntity, PlayerEntity player) {
         blockEntity.addPlayerToCharger(player);
         int charge = blockEntity.getPlayerCharge(player);
         EnderPorter.LOGGER.info(charge);
         if (charge >= CHARGE_REQUIRED) {
             DimensionLocation dimLoc = blockEntity.getDimensionLocation();
             if (dimLoc != null && blockEntity.hasPearlsRequired()) {
-                // TODO sound not playing on client, send packet from server instad of syncing charge
-                player.playSound(SoundEvents.ENTITY_ENDERMAN_TELEPORT, 1.0F, 1.0F);
                 blockEntity.removePlayerFromCharger(player);
-                if ((world instanceof ServerWorld)) {
-                    dimLoc.moveEntity(world, (ServerPlayerEntity) player);
-                    blockEntity.onTeleport();
-                }
-                //particles after teleport
+                world.playSound(null, pos, SoundEvents.ENTITY_ENDERMAN_TELEPORT, SoundCategory.BLOCKS, 1.0F, 1.0F);
+                dimLoc.moveEntity(world, (ServerPlayerEntity) player);
+                blockEntity.onTeleport();
+                //particles and sound after teleport
+                world.playSound(null, new BlockPos(dimLoc.getPos()), SoundEvents.ENTITY_ENDERMAN_TELEPORT, SoundCategory.BLOCKS, 1.0F, 1.0F);
                 for (int i = 0; i < PARTICLE_NUMBER; i++) {
                     world.addParticle(ParticleTypes.PORTAL, (double)dimLoc.getPosX() + 0.5D, (double)dimLoc.getPosY() + player.getHeight() * EnderPorter.RANDOM.nextDouble() - 0.25D, (double)dimLoc.getPosZ() + 0.5D, (EnderPorter.RANDOM.nextDouble() - 0.5D) * 2.0D, -EnderPorter.RANDOM.nextDouble(), (EnderPorter.RANDOM.nextDouble() - 0.5D) * 2.0D);
                 }
             } else {
-                player.playSound(SoundEvents.BLOCK_BEACON_DEACTIVATE, 1.0F, 1.0F);
+                world.playSound(null, pos, SoundEvents.BLOCK_BEACON_DEACTIVATE, SoundCategory.BLOCKS, 1.0F, 1.0F);
                 blockEntity.removePlayerFromCharger(player);
             }
         }

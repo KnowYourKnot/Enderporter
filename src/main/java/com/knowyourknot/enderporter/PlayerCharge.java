@@ -3,7 +3,6 @@ package com.knowyourknot.enderporter;
 import java.util.UUID;
 
 import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.nbt.CompoundTag;
 
 public class PlayerCharge {
     private UUID uuid;
@@ -20,20 +19,6 @@ public class PlayerCharge {
         this.uuid = uuid;
         this.name = name;
         this.charge = 0;
-    }
-
-    public static PlayerCharge fromTag(CompoundTag tag) {
-        UUID uuid = tag.getUuid("UUID");
-        String name = tag.getString("Name");
-        PlayerCharge playerCharge = new PlayerCharge(uuid, name);
-        playerCharge.setCharge(tag.getInt("Charge"));
-        return playerCharge;
-    }
-
-    public void toTag(CompoundTag tag) {
-        tag.putUuid("UUID", this.uuid);
-        tag.putString("Name", this.name);
-        tag.putInt("Charge", this.charge);
     }
 
     public void setCharge(int charge) {

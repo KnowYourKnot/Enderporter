@@ -155,7 +155,7 @@ public class DimensionLocation {
         return new Identifier(this.namespace, this.path);
     }
 
-    // TODO can only check if space empty on server, will have to sync this as a packet to server too
+    // TODO can only check if space empty on server, will have to sync this as a packet to server
     public boolean canFitEntity(ServerWorld world, ServerPlayerEntity player) {
         RegistryKey<World> registryKey = RegistryKey.of(Registry.DIMENSION, this.getIdentifier());
         ServerWorld destination = world.getServer().getWorld(registryKey);

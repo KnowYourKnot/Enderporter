@@ -3,41 +3,12 @@ package com.knowyourknot.enderporter;
 import java.util.ArrayList;
 
 import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.ListTag;
 
 public class PlayerCharger {
     private ArrayList<PlayerCharge> playerCharges;
 
     public PlayerCharger() {
         this.playerCharges = new ArrayList<>();
-    }
-
-    public void fromTag(CompoundTag tag) {
-        ListTag listTag = (ListTag) tag.get("PlayerCharges");
-
-        if (listTag == null) {
-            return;
-        }
-
-        this.playerCharges.clear();
-        for (int i = 0; i < listTag.size(); i++) {
-            CompoundTag compoundTag = listTag.getCompound(i);
-            PlayerCharge playerCharge = PlayerCharge.fromTag(compoundTag);
-            this.playerCharges.add(playerCharge);            
-        }
-    }
-
-    public void toTag(CompoundTag tag) {
-        ListTag listTag = new ListTag();
-
-        for (int i = 0; i < this.getPlayerNo(); i++) {
-            CompoundTag compoundTag = new CompoundTag();
-            PlayerCharge playerCharge = getPlayerChargeFromIndex(i);
-            playerCharge.toTag(compoundTag);
-            listTag.add(compoundTag);
-        }
-        tag.put("PlayerCharges", listTag);
     }
 
     public void addPlayer(PlayerEntity player) {
