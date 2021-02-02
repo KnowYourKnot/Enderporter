@@ -14,5 +14,8 @@
     "enderporter.gui.different_dimension": "Different Dimension",
     "enderporter.gui.pearls_required": "%d Pearls Required",
     "enderporter.teleport_location": "(%d, %d, %d)",
-    "enderporter.teleport_not_set": "Teleport not set"
+    "enderporter.teleport_not_set": "Teleport not set",
+    "enderporter.chat.teleport_location_obstructed": "Teleport location obstructed!",
+    "enderporter.chat.teleport_not_set": "Teleport not set!",
+    "enderporter.chat.not_enough_pearls": "Not enough pearls!"
 }

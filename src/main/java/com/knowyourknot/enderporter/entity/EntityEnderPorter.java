@@ -194,10 +194,6 @@ public class EntityEnderPorter extends BlockEntity
         return false;
     }
 
-    public boolean canTeleport() {
-        return true;
-    }
-
     // read
     @Override
     public void fromTag(BlockState state, CompoundTag tag) {
@@ -247,7 +243,6 @@ public class EntityEnderPorter extends BlockEntity
         return true;
     }
 
-    
     @Override
     public void tick() {
         if (!this.world.isClient() && !this.playerCharger.isEmpty()) {
