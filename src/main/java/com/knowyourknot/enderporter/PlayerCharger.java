@@ -110,12 +110,4 @@ public class PlayerCharger {
             this.playerCharges.get(i).incrementCharge(increment);
         }
     }
-
-    public String toString() {
-        String outString = "";
-        for (int i = 0; i < getPlayerNo(); i++) {
-            outString += "[" + getPlayerChargeFromIndex(i) + "], ";
-        }
-        return outString;
-    }
 }

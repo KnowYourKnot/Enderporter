@@ -1,7 +1,7 @@
 package com.knowyourknot.enderporter;
 
 import net.minecraft.advancement.criterion.Criteria;
-import net.minecraft.entity.Entity;
+import net.minecraft.block.Blocks;
 import net.minecraft.entity.effect.StatusEffectInstance;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
@@ -155,8 +155,34 @@ public class DimensionLocation {
         return new Identifier(this.namespace, this.path);
     }
 
+    // TODO can only check if space empty on server, will have to sync this as a packet to server too
+    public boolean canFitEntity(ServerWorld world, ServerPlayerEntity player) {
+        RegistryKey<World> registryKey = RegistryKey.of(Registry.DIMENSION, this.getIdentifier());
+        ServerWorld destination = world.getServer().getWorld(registryKey);
+        // decide which blocks to check
+        float width = player.getWidth();
+        float height = player.getHeight();
+
+        int radius = ((int) Math.ceil(width))/2; // next odd integer + 1 / 2
+        int diameter = radius * 2 + 1;
+        int intHeight = (int) Math.ceil(height);
+        // check blocks empty
+        BlockPos initialPos = new BlockPos(this.getPos()).add(-radius, 0, -radius);
+        for (int y = 0; y < intHeight; y++) {
+            for (int x = 0; x < diameter; x++) {
+                for (int z = 0; z < diameter; z++) {
+                    BlockPos pos = initialPos.add(x, y, z);
+                    if (destination.getBlockState(pos).getBlock() != Blocks.AIR) {
+                        return false;
+                    }
+                }
+            }
+        }
+
+        return true;
+    }
+
     public ServerPlayerEntity moveEntity(World world, ServerPlayerEntity serverPlayerEntity) {
-        // TODO check space empty before teleporting
         RegistryKey<World> registryKey = RegistryKey.of(Registry.DIMENSION, this.getIdentifier());
         ServerWorld destination = ((ServerWorld) world).getServer().getWorld(registryKey);
         ServerWorld currentWorld = (ServerWorld) serverPlayerEntity.world;
@@ -169,11 +195,6 @@ public class DimensionLocation {
 
         return serverPlayerEntity;
 
-    }
-
-    // returns true iff there is enough room at the teleport target for the entity to fit
-    public boolean isSpaceClear(World world, Entity entity) {
-        return true;
     }
 
     // from ServerPlayerEntity.moveToWorld, inspired by kryptonaut's custom portal API
