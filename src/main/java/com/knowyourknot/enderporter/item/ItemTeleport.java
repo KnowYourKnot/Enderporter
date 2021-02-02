@@ -15,6 +15,7 @@ import net.minecraft.item.ItemUsageContext;
 import net.minecraft.particle.ParticleTypes;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
+import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvents;
 import net.minecraft.text.Style;
 import net.minecraft.text.Text;
@@ -58,6 +59,7 @@ public class ItemTeleport extends Item {
         if (playerEntity.isSneaking()) {
             DimensionLocation dimLoc = DimensionLocation.setContextDimensionLocation(context);
             if (dimLoc != null) {
+                // we only want this sound to play on the specified player's client
                 context.getPlayer().playSound(SoundEvents.ENTITY_EXPERIENCE_ORB_PICKUP, 1.0F, 1.0F);
                 return ActionResult.SUCCESS;
             }
@@ -73,7 +75,9 @@ public class ItemTeleport extends Item {
             if (MAX_USE_TIME - remainingUseTicks >= CHARGE_REQUIRED) {
                 tryTeleportPlayer(world, (PlayerEntity) user, Hand.MAIN_HAND);
             } else {
-                ((PlayerEntity) user).playSound(SoundEvents.BLOCK_BEACON_DEACTIVATE, 1.0F, 1.0F);
+                if (!world.isClient()) {
+                    world.playSound(null, user.getBlockPos(), SoundEvents.BLOCK_BEACON_DEACTIVATE, SoundCategory.BLOCKS, 1.0F, 1.0F);
+                }
             }
         }
     }
@@ -98,22 +102,24 @@ public class ItemTeleport extends Item {
         DimensionLocation dimLoc = DimensionLocation.getStackDimensionLocation(stack);
         if (dimLoc != null) {
             BlockPos pos = playerEntity.getBlockPos();
-            // particles and sound at old location
-            playerEntity.playSound(SoundEvents.ENTITY_ENDERMAN_TELEPORT, 1.0F, 1.0F);
             for (int i = 0; i < 25; i++) {
                 world.addParticle(ParticleTypes.PORTAL, (double)pos.getX() + 0.5D, playerEntity.getRandomBodyY() - 0.25D, (double)pos.getZ() + 0.5D, (EnderPorter.RANDOM.nextDouble() - 0.5D) * 2.0D, -EnderPorter.RANDOM.nextDouble(), (EnderPorter.RANDOM.nextDouble() - 0.5D) * 2.0D);
             }
             if (world instanceof ServerWorld) {
+                world.playSound(null, playerEntity.getBlockPos(), SoundEvents.ENTITY_ENDERMAN_TELEPORT, SoundCategory.BLOCKS, 1.0F, 1.0F);
                 dimLoc.moveEntity(world, (ServerPlayerEntity)playerEntity);
+                world.playSound(null, playerEntity.getBlockPos(), SoundEvents.ENTITY_ENDERMAN_TELEPORT, SoundCategory.BLOCKS, 1.0F, 1.0F);
             }
-            // particles and sound at new location
-            playerEntity.playSound(SoundEvents.ENTITY_ENDERMAN_TELEPORT, 1.0F, 1.0F);
+            // particles at new location
             for (int i = 0; i < PARTICLE_NUMBER; i++) {
                 world.addParticle(ParticleTypes.PORTAL, (double)dimLoc.getPosX() + 0.5D, (double)dimLoc.getPosY() + playerEntity.getHeight() * EnderPorter.RANDOM.nextDouble() - 0.25D, (double)dimLoc.getPosZ() + 0.5D, (EnderPorter.RANDOM.nextDouble() - 0.5D) * 2.0D, -EnderPorter.RANDOM.nextDouble(), (EnderPorter.RANDOM.nextDouble() - 0.5D) * 2.0D);
             }
             this.afterTeleport(world, playerEntity, hand);
         } else {
-            playerEntity.playSound(SoundEvents.BLOCK_BEACON_DEACTIVATE, 1.0F, 1.0F);
+            if (!world.isClient()) {
+                world.playSound(null, playerEntity.getBlockPos(), SoundEvents.BLOCK_BEACON_DEACTIVATE, SoundCategory.BLOCKS, 1.0F, 1.0F);
+            }
+            
         }
     }
 
