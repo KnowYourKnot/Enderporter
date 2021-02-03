@@ -18,13 +18,13 @@ public final class Lang {
     public static final String MESSAGE_INTERDIMENSIONAL_UPGRADE_MISSING = "message.enderporter.interdimensional_upgrade_missing";
 
     // modders can add localisations for their dimension names
-    public static final TranslatableText teleportDimension(DimensionLocation dimLoc) {
+    public static final TranslatableText teleportDimension(DimPos dimLoc) {
         String delocalisedName = "dimension." + dimLoc.getIdentifier().getNamespace() + "." + dimLoc.getIdentifier().getPath();
         return new TranslatableText(delocalisedName);
     }
 
-    public static final TranslatableText teleportLocation(DimensionLocation dimLoc) {
-        return new TranslatableText(GUI_TELEPORT_LOCATION, dimLoc.getPosX(), dimLoc.getPosY(), dimLoc.getPosZ());
+    public static final TranslatableText teleportLocation(DimPos dimLoc) {
+        return new TranslatableText(GUI_TELEPORT_LOCATION, dimLoc.getPos().getX(), dimLoc.getPos().getY(), dimLoc.getPos().getZ());
     }
 
     public static final TranslatableText blocksAway(int blocks) {

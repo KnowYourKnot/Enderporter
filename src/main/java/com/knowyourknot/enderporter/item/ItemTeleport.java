@@ -2,7 +2,7 @@ package com.knowyourknot.enderporter.item;
 
 import java.util.List;
 
-import com.knowyourknot.enderporter.DimensionLocation;
+import com.knowyourknot.enderporter.DimPos;
 import com.knowyourknot.enderporter.EnderPorter;
 import com.knowyourknot.enderporter.Lang;
 
@@ -40,7 +40,7 @@ public class ItemTeleport extends Item {
 
     @Override
     public void appendTooltip(ItemStack stack, World world, List<Text> tooltip, TooltipContext tooltipContext) {
-        DimensionLocation dimLoc = DimensionLocation.getStackDimensionLocation(stack);
+        DimPos dimLoc = DimPos.getStackDimPos(stack);
         if (dimLoc != null) {
             tooltip.add(Lang.teleportDimension(dimLoc).setStyle(Style.EMPTY.withColor(Formatting.GRAY)));
             tooltip.add(Lang.teleportLocation(dimLoc).setStyle(Style.EMPTY.withColor(Formatting.GRAY)));
@@ -60,7 +60,7 @@ public class ItemTeleport extends Item {
     public ActionResult useOnBlock(ItemUsageContext context) {
         PlayerEntity playerEntity = context.getPlayer();
         if (playerEntity.isSneaking()) {
-            DimensionLocation dimLoc = DimensionLocation.setContextDimensionLocation(context);
+            DimPos dimLoc = DimPos.setContextDimensionLocation(context);
             if (dimLoc != null) {
                 // we only want this sound to play on the specified player's client
                 context.getPlayer().playSound(SoundEvents.ENTITY_EXPERIENCE_ORB_PICKUP, 1.0F, 1.0F);
@@ -100,7 +100,7 @@ public class ItemTeleport extends Item {
 
     public void tryTeleportPlayer(ServerWorld world, ServerPlayerEntity player, Hand hand) {
         ItemStack stack = player.getStackInHand(hand);
-        DimensionLocation dimLoc = DimensionLocation.getStackDimensionLocation(stack);
+        DimPos dimLoc = DimPos.getStackDimPos(stack);
         if (!world.isClient()) {
             if (dimLoc == null) {
                 this.onFailedTeleport(world, player);

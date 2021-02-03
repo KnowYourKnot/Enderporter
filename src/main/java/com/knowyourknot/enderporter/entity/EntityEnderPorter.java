@@ -1,6 +1,6 @@
 package com.knowyourknot.enderporter.entity;
 
-import com.knowyourknot.enderporter.DimensionLocation;
+import com.knowyourknot.enderporter.DimPos;
 import com.knowyourknot.enderporter.EnderPorter;
 import com.knowyourknot.enderporter.Lang;
 import com.knowyourknot.enderporter.PlayerCharger;
@@ -26,9 +26,7 @@ import net.minecraft.text.TranslatableText;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.Tickable;
 import net.minecraft.util.collection.DefaultedList;
-import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
-import net.minecraft.util.math.Vec3d;
 
 public class EntityEnderPorter extends BlockEntity
         implements Tickable, IInventory, NamedScreenHandlerFactory, BlockEntityClientSerializable, SidedInventory {
@@ -39,18 +37,16 @@ public class EntityEnderPorter extends BlockEntity
         super(EnderPorter.ENTITY_ENDER_PORTER);
     }
 
-    public DimensionLocation getDimensionLocation() {
-        return DimensionLocation.getStackDimensionLocation(this.items.get(0));
+    public DimPos getDimensionLocation() {
+        return DimPos.getStackDimPos(this.items.get(0));
     }
 
     public int getBlocksAway() {
-        DimensionLocation dimLoc = this.getDimensionLocation();
+        DimPos dimLoc = this.getDimensionLocation();
         Identifier currentWorldIdentifier = this.getWorld().getRegistryKey().getValue();
 
         if (dimLoc != null && dimLoc.getIdentifier().compareTo(currentWorldIdentifier) == 0) {
-            BlockPos targetPos = this.getPos();
-            Vec3d targetPosVect = new Vec3d(targetPos.getX(), targetPos.getY(), targetPos.getZ());
-            return (int) dimLoc.distanceTo(targetPosVect);
+            return (int) dimLoc.distanceTo(this.getPos());
         }
         return -1;
     }
@@ -117,7 +113,7 @@ public class EntityEnderPorter extends BlockEntity
     }
 
     public boolean hasPearlsRequired() {
-        DimensionLocation dimLoc = this.getDimensionLocation();
+        DimPos dimLoc = this.getDimensionLocation();
         if (dimLoc == null) {
             return false;
         }

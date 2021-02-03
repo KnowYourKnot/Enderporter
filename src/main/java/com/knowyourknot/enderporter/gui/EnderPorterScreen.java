@@ -1,6 +1,6 @@
 package com.knowyourknot.enderporter.gui;
 
-import com.knowyourknot.enderporter.DimensionLocation;
+import com.knowyourknot.enderporter.DimPos;
 import com.knowyourknot.enderporter.Lang;
 import com.mojang.blaze3d.systems.RenderSystem;
 
@@ -58,7 +58,7 @@ public class EnderPorterScreen extends HandledScreen<ScreenHandler> {
         super.render(matrices, mouseX, mouseY, delta);
         // write porter location in gui
         ItemStack stack = screenHandler.getStacks().get(0);
-        DimensionLocation dimLoc = DimensionLocation.getStackDimensionLocation(stack);
+        DimPos dimLoc = DimPos.getStackDimPos(stack);
         if (dimLoc != null) {
             MutableText dimensionName = Lang.teleportDimension(dimLoc);
             MutableText dimensionPos = Lang.teleportLocation(dimLoc);

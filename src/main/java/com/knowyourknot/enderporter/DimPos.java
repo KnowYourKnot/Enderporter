@@ -18,98 +18,84 @@ import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
-import net.minecraft.util.math.Vec3d;
+import net.minecraft.util.math.Vec3i;
 import net.minecraft.util.registry.Registry;
 import net.minecraft.util.registry.RegistryKey;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldProperties;
 import net.minecraft.world.biome.source.BiomeAccess;
 
-public class DimensionLocation {
+public class DimPos {
     private static final String DIMENSION_NAMESPACE = "dimensionNamespace";
     private static final String DIMENSION_PATH = "dimensionPath";
     private static final String POS_X = "posX";
     private static final String POS_Y = "posY";
     private static final String POS_Z = "posZ";
 
-    private final String namespace;
-    private final String path;
-    private final float posX;
-    private final float posY;
-    private final float posZ;
+    private final Identifier identifier;
+    private final BlockPos pos;
 
-    public DimensionLocation(String namespace, String path, float posX, float posY, float posZ) {
-        this.namespace = namespace;
-        this.path = path;
-        this.posX = posX;
-        this.posY = posY;
-        this.posZ = posZ;
+    public DimPos(Identifier identifier, BlockPos pos) {
+        this.identifier = identifier;
+        this.pos = pos;
     }
 
     public boolean isInDimension(Identifier dimensionId) {
         return (this.getIdentifier().equals(dimensionId));
     }
 
-    public float distanceTo(Vec3d pos) {
-        return (float) this.getPos().distanceTo(pos);
+    public float distanceTo(BlockPos pos) {
+        return (float) this.pos.getSquaredDistance((Vec3i) pos);
     }
 
     public String toString() {
-        return this.namespace + ":" + this.path + ", " + this.getPos().toString();
+        return identifier.toString() + ", " + pos.toString();
     }
 
-    public static DimensionLocation getContextDimensionLocation(ItemUsageContext context) {
+    public static DimPos getContextDimPos(ItemUsageContext context) {
         World world = context.getWorld();
-        Identifier dimensionIdentifier = world.getRegistryKey().getValue();
-        String namespace = dimensionIdentifier.getNamespace();
-        String path = dimensionIdentifier.getPath();
+        Identifier newIdentifier = world.getRegistryKey().getValue();
 
-        BlockPos blockPos = context.getBlockPos();
+        BlockPos newPos = context.getBlockPos();
         Direction side = context.getSide();
-        // test with whiterabbit https://modrinth.com/mod/WhiteRabbit
-        float posX = (float) blockPos.getX() + side.getOffsetX();
-        float posY = (float) blockPos.getY() + side.getOffsetY();
-        float posZ = (float) blockPos.getZ() + side.getOffsetZ();
-
-        return new DimensionLocation(namespace, path, posX, posY, posZ);
+        // TODO test with whiterabbit https://modrinth.com/mod/WhiteRabbit
+        return new DimPos(newIdentifier, newPos.add(side.getOffsetX(), side.getOffsetY(), side.getOffsetZ()));
     }
 
-    public static DimensionLocation getStackDimensionLocation(ItemStack stack) {
+    public static DimPos getStackDimPos(ItemStack stack) {
         if (stack.hasTag()) {
             CompoundTag data = stack.getTag();
-            return DimensionLocation.getNbtDimensionLocation(data);
+            return DimPos.getNbtDimPos(data);
         } else {
             return null;
         }
     }
 
-    public static DimensionLocation getNbtDimensionLocation(CompoundTag data) {
+    public static DimPos getNbtDimPos(CompoundTag data) {
         if (data.contains(DIMENSION_NAMESPACE) && data.contains(DIMENSION_PATH) && data.contains(POS_X) && data.contains(POS_Y) && data.contains(POS_Z)) {
             String namespace = data.getString(DIMENSION_NAMESPACE);
             String path = data.getString(DIMENSION_PATH);
-            float posX = data.getFloat(POS_X);
-            float posY = data.getFloat(POS_Y);
-            float posZ = data.getFloat(POS_Z);
-
-            return new DimensionLocation(namespace, path, posX, posY, posZ);
+            Identifier newIdentifier = new Identifier(namespace, path);
+            BlockPos newPos = new BlockPos(data.getFloat(POS_X), data.getFloat(POS_Y), data.getFloat(POS_Z));
+            return new DimPos(newIdentifier, newPos);
         } else {
             return null;
         }
     }
 
     public void setNbtDimensionLocation(CompoundTag data) {
-        data.putString(DIMENSION_NAMESPACE, this.namespace);
-        data.putString(DIMENSION_PATH, this.path);
-        data.putFloat(POS_X, this.posX);
-        data.putFloat(POS_Y, this.posY);
-        data.putFloat(POS_Z, this.posZ);
+        data.putString(DIMENSION_NAMESPACE, this.getNamespace());
+        data.putString(DIMENSION_PATH, this.getPath());
+        data.putFloat(POS_X, this.pos.getX());
+        data.putFloat(POS_Y, this.pos.getY());
+        data.putFloat(POS_Z, this.pos.getZ());
     }
 
-    public static DimensionLocation setContextDimensionLocation(ItemUsageContext context) {
+    public static DimPos setContextDimensionLocation(ItemUsageContext context) {
         PlayerEntity playerEntity = context.getPlayer();
 
         if (playerEntity.isSneaking()) {
-            DimensionLocation dimLoc = getContextDimensionLocation(context);
+            DimPos dimLoc = getContextDimPos(context);
 
             ItemStack stack = context.getStack();
             CompoundTag data;
@@ -128,35 +114,23 @@ public class DimensionLocation {
     }
 
     public String getNamespace() {
-        return this.namespace;
+        return this.identifier.getNamespace();
     }
 
     public String getPath() {
-        return this.path;
+        return this.identifier.getPath();
     }
 
-    public float getPosX() {
-        return this.posX;
-    }
-
-    public float getPosY() {
-        return this.posY;
-    }
-
-    public float getPosZ() {
-        return this.posZ;
-    }
-
-    public Vec3d getPos() {
-        return new Vec3d(this.posX, this.posY, this.posZ);
+    public BlockPos getPos() {
+        return pos.mutableCopy();
     }
 
     public Identifier getIdentifier() {
-        return new Identifier(this.namespace, this.path);
+        return identifier;
     }
 
     public boolean canFitEntity(ServerWorld world, ServerPlayerEntity player) {
-        RegistryKey<World> registryKey = RegistryKey.of(Registry.DIMENSION, this.getIdentifier());
+        RegistryKey<World> registryKey = RegistryKey.of(Registry.DIMENSION, this.identifier);
         ServerWorld destination = world.getServer().getWorld(registryKey);
         // decide which blocks to check
         float width = player.getWidth();
@@ -166,12 +140,12 @@ public class DimensionLocation {
         int diameter = radius * 2 + 1;
         int intHeight = (int) Math.ceil(height);
         // check blocks empty
-        BlockPos initialPos = new BlockPos(this.getPos()).add(-radius, 0, -radius);
+        BlockPos initialPos = new BlockPos(this.pos).add(-radius, 0, -radius);
         for (int y = 0; y < intHeight; y++) {
             for (int x = 0; x < diameter; x++) {
                 for (int z = 0; z < diameter; z++) {
-                    BlockPos pos = initialPos.add(x, y, z);
-                    if (destination.getBlockState(pos).getBlock() != Blocks.AIR) {
+                    BlockPos posToCheck = initialPos.add(x, y, z);
+                    if (destination.getBlockState(posToCheck).getBlock() != Blocks.AIR) {
                         return false;
                     }
                 }
@@ -189,7 +163,7 @@ public class DimensionLocation {
         if (currentWorld.getRegistryKey() != destination.getRegistryKey()) {
             this.moveToDimension(destination, serverPlayerEntity);
         } else {
-            serverPlayerEntity.requestTeleport(this.posX + 0.5f, this.posY, this.posZ + 0.5f);
+            serverPlayerEntity.requestTeleport(this.pos.getX() + 0.5f, this.pos.getY(), this.pos.getZ() + 0.5f);
         }
 
         return serverPlayerEntity;
@@ -211,7 +185,7 @@ public class DimensionLocation {
         origin.getProfiler().push("placing");
         player.setWorld(destination);
         destination.onPlayerChangeDimension(player);
-        player.refreshPositionAfterTeleport(this.posX + 0.5f, this.posY, this.posZ + 0.5f);
+        player.refreshPositionAfterTeleport(this.pos.getX() + 0.5f, this.pos.getY(), this.pos.getZ() + 0.5f);
         origin.getProfiler().pop();
         worldChanged(origin, player);
         player.interactionManager.setWorld(destination);

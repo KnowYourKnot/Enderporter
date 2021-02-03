@@ -2,7 +2,7 @@ package com.knowyourknot.enderporter.block;
 
 import java.util.Random;
 
-import com.knowyourknot.enderporter.DimensionLocation;
+import com.knowyourknot.enderporter.DimPos;
 import com.knowyourknot.enderporter.EnderPorter;
 import com.knowyourknot.enderporter.Lang;
 import com.knowyourknot.enderporter.entity.EntityEnderPorter;
@@ -32,6 +32,7 @@ import net.minecraft.util.Hand;
 import net.minecraft.util.ItemScatterer;
 import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.shape.VoxelShape;
 import net.minecraft.util.shape.VoxelShapes;
 import net.minecraft.world.BlockView;
@@ -96,7 +97,7 @@ public class BlockEnderPorter extends BlockWithEntity {
         blockEntity.addPlayerToCharger(player);
         int charge = blockEntity.getPlayerCharge(player);
         if (charge >= CHARGE_REQUIRED) {
-            DimensionLocation dimLoc = blockEntity.getDimensionLocation();
+            DimPos dimLoc = blockEntity.getDimensionLocation();
             if (dimLoc == null) {
                 this.onFailedTeleport(world, pos, player, blockEntity);
                 MutableText text = new TranslatableText(Lang.MESSAGE_TELEPORT_NOT_SET).setStyle(Style.EMPTY.withColor(Formatting.RED));
@@ -129,7 +130,9 @@ public class BlockEnderPorter extends BlockWithEntity {
             //particles and sound after teleport
             world.playSound(null, new BlockPos(dimLoc.getPos()), SoundEvents.ENTITY_ENDERMAN_TELEPORT, SoundCategory.BLOCKS, 1.0F, 1.0F);
             for (int i = 0; i < PARTICLE_NUMBER; i++) {
-                world.addParticle(ParticleTypes.PORTAL, (double)dimLoc.getPosX() + 0.5D, (double)dimLoc.getPosY() + player.getHeight() * EnderPorter.RANDOM.nextDouble() - 0.25D, (double)dimLoc.getPosZ() + 0.5D, (EnderPorter.RANDOM.nextDouble() - 0.5D) * 2.0D, -EnderPorter.RANDOM.nextDouble(), (EnderPorter.RANDOM.nextDouble() - 0.5D) * 2.0D);
+                BlockPos particlePos = dimLoc.getPos().add(0.5D, player.getHeight() * EnderPorter.RANDOM.nextDouble() - 0.25D, 0.5D);
+                Vec3d particleVel = new Vec3d((EnderPorter.RANDOM.nextDouble() - 0.5D) * 2.0D, -EnderPorter.RANDOM.nextDouble(), (EnderPorter.RANDOM.nextDouble() - 0.5D) * 2.0D);
+                world.addParticle(ParticleTypes.PORTAL, particlePos.getX(), particlePos.getY(), particlePos.getZ(), particleVel.getX(), particleVel.getY(), particleVel.getZ());
             }
         }
     }
