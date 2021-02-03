@@ -2,6 +2,7 @@ package com.knowyourknot.enderporter.entity;
 
 import com.knowyourknot.enderporter.DimensionLocation;
 import com.knowyourknot.enderporter.EnderPorter;
+import com.knowyourknot.enderporter.Lang;
 import com.knowyourknot.enderporter.PlayerCharger;
 import com.knowyourknot.enderporter.gui.EnderPorterScreenHandler;
 import com.knowyourknot.enderporter.inventory.IInventory;
@@ -20,7 +21,6 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.screen.NamedScreenHandlerFactory;
 import net.minecraft.screen.PropertyDelegate;
 import net.minecraft.screen.ScreenHandler;
-import net.minecraft.server.world.ServerWorld;
 import net.minecraft.text.Text;
 import net.minecraft.text.TranslatableText;
 import net.minecraft.util.Identifier;
@@ -65,6 +65,11 @@ public class EntityEnderPorter extends BlockEntity
                 return;
             }
         }
+    }
+
+    public boolean needsDimUpgrade() {
+        Identifier dimensionId = this.getWorld().getRegistryKey().getValue();
+        return !this.getDimensionLocation().isInDimension(dimensionId);
     }
 
     // if inv contains dimensional upgrade
@@ -152,7 +157,7 @@ public class EntityEnderPorter extends BlockEntity
     @Override
     public void markDirty() {
         super.markDirty();
-        if (this.world instanceof ServerWorld) {
+        if (!this.world.isClient) {
             sync();
         }
     }
@@ -171,7 +176,7 @@ public class EntityEnderPorter extends BlockEntity
 
     @Override
     public Text getDisplayName() {
-        return new TranslatableText("gui.enderporter.ender_porter");
+        return new TranslatableText(Lang.GUI_ENDER_PORTER);
     }
 
     @Override

@@ -4,6 +4,7 @@ import java.util.Random;
 
 import com.knowyourknot.enderporter.DimensionLocation;
 import com.knowyourknot.enderporter.EnderPorter;
+import com.knowyourknot.enderporter.Lang;
 import com.knowyourknot.enderporter.entity.EntityEnderPorter;
 
 import net.fabricmc.api.EnvType;
@@ -14,6 +15,7 @@ import net.minecraft.block.BlockWithEntity;
 import net.minecraft.block.ShapeContext;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.EntityPose;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.particle.ParticleTypes;
 import net.minecraft.screen.NamedScreenHandlerFactory;
@@ -93,32 +95,35 @@ public class BlockEnderPorter extends BlockWithEntity {
     public void playerCharge(ServerWorld world, BlockPos pos, EntityEnderPorter blockEntity, ServerPlayerEntity player) {
         blockEntity.addPlayerToCharger(player);
         int charge = blockEntity.getPlayerCharge(player);
-        EnderPorter.LOGGER.info(charge);
         if (charge >= CHARGE_REQUIRED) {
             DimensionLocation dimLoc = blockEntity.getDimensionLocation();
             if (dimLoc == null) {
                 this.onFailedTeleport(world, pos, player, blockEntity);
-                // TODO replace all instances of localised text with constants
-                MutableText text = new TranslatableText("enderporter.chat.teleport_not_set").setStyle(Style.EMPTY.withColor(Formatting.RED));
+                MutableText text = new TranslatableText(Lang.MESSAGE_TELEPORT_NOT_SET).setStyle(Style.EMPTY.withColor(Formatting.RED));
                 player.sendMessage(text, true);
                 return;
             }
-            // TODO change error message if other dimension
+            if (blockEntity.needsDimUpgrade() && !blockEntity.hasDimUpgrade()) {
+                this.onFailedTeleport(world, pos, player, blockEntity);
+                MutableText text = new TranslatableText(Lang.MESSAGE_INTERDIMENSIONAL_UPGRADE_MISSING).setStyle(Style.EMPTY.withColor(Formatting.RED));
+                player.sendMessage(text, true);
+                return;
+            }
             if (!blockEntity.hasPearlsRequired()) {
                 this.onFailedTeleport(world, pos, player, blockEntity);
-                MutableText text = new TranslatableText("enderporter.chat.not_enough_pearls").setStyle(Style.EMPTY.withColor(Formatting.RED));
+                MutableText text = new TranslatableText(Lang.MESSAGE_NOT_ENOUGH_PEARLS).setStyle(Style.EMPTY.withColor(Formatting.RED));
                 player.sendMessage(text, true);
                 return;
             }
-            // TODO add this error message to teleport item
             if (!dimLoc.canFitEntity(world, player)) {
                 this.onFailedTeleport(world, pos, player, blockEntity);
-                MutableText text = new TranslatableText("enderporter.chat.teleport_location_obstructed").setStyle(Style.EMPTY.withColor(Formatting.RED));
+                MutableText text = new TranslatableText(Lang.MESSAGE_TELEPORT_LOCATION_OBSTRUCTED).setStyle(Style.EMPTY.withColor(Formatting.RED));
                 player.sendMessage(text, true);
                 return;
             }
             blockEntity.removePlayerFromCharger(player);
             world.playSound(null, pos, SoundEvents.ENTITY_ENDERMAN_TELEPORT, SoundCategory.BLOCKS, 1.0F, 1.0F);
+            player.setPose(EntityPose.STANDING);
             dimLoc.moveEntity(world, player);
             blockEntity.onTeleport();
             //particles and sound after teleport
@@ -131,7 +136,7 @@ public class BlockEnderPorter extends BlockWithEntity {
 
     public void onFailedTeleport(World world, BlockPos pos, PlayerEntity player, EntityEnderPorter blockEntity) {
         world.playSound(null, pos, SoundEvents.BLOCK_BEACON_DEACTIVATE, SoundCategory.BLOCKS, 1.0F, 1.0F);
-                blockEntity.removePlayerFromCharger(player);
+        blockEntity.removePlayerFromCharger(player);
     }
 
     @Override
@@ -141,7 +146,8 @@ public class BlockEnderPorter extends BlockWithEntity {
         if (blockEntity.getDimensionLocation() != null) {
             for (int i = 0; i < random.nextInt(3) + 1; ++i) {
                 world.addParticle(ParticleTypes.PORTAL, (double) pos.getX() + 0.5D, (double) pos.getY() + 1,
-                        (double) pos.getZ() + 0.5D, (random.nextDouble() - 0.5D) * 2.0D, -random.nextDouble(), (random.nextDouble() - 0.5D) * 2.0D);
+                        (double) pos.getZ() + 0.5D, (random.nextDouble() - 0.5D) * 2.0D, -random.nextDouble(),
+                        (random.nextDouble() - 0.5D) * 2.0D);
             }
         }
     }

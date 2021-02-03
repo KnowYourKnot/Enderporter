@@ -4,18 +4,23 @@
     "item.enderporter.debug_item": "Debug Item",
     "item.enderporter.upgrade_range": "Range Upgrade",
     "item.enderporter.upgrade_dim": "Interdimensional Upgrade",
+    
     "block.enderporter.ender_porter": "Ender Porter",
+
     "gui.enderporter.ender_porter": "Ender Porter",
+    "gui.enderporter.teleport_location": "(%d, %d, %d)",
+    "gui.enderporter.teleport_not_set": "Teleport not set!",
+    "gui.enderporter.blocks_away": "%d Blocks Away",
+    "gui.enderporter.different_dimension": "Different Dimension",
+    "gui.enderporter.pearls_required": "%d Pearls Required",
+
+    "message.enderporter.teleport_location_obstructed": "Teleport location obstructed!",
+    "message.enderporter.teleport_not_set": "Teleport not set!",
+    "message.enderporter.not_enough_pearls": "Not enough pearls!",
+    "message.enderporter.interdimensional_upgrade_missing": "Interdimensional upgrade missing!",
+
     "dimension.minecraft.overworld": "Overworld",
     "dimension.minecraft.the_nether": "Nether",
     "dimension.minecraft.the_end": "The End",
-    "dimension.the_bumblezone.the_bumblezone": "The Bumblezone",
-    "enderporter.gui.blocks_away": "%d Blocks Away",
-    "enderporter.gui.different_dimension": "Different Dimension",
-    "enderporter.gui.pearls_required": "%d Pearls Required",
-    "enderporter.teleport_location": "(%d, %d, %d)",
-    "enderporter.teleport_not_set": "Teleport not set",
-    "enderporter.chat.teleport_location_obstructed": "Teleport location obstructed!",
-    "enderporter.chat.teleport_not_set": "Teleport not set!",
-    "enderporter.chat.not_enough_pearls": "Not enough pearls!"
+    "dimension.the_bumblezone.the_bumblezone": "The Bumblezone"
 }

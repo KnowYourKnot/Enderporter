@@ -17,8 +17,10 @@ import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvents;
+import net.minecraft.text.MutableText;
 import net.minecraft.text.Style;
 import net.minecraft.text.Text;
+import net.minecraft.text.TranslatableText;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.Hand;
@@ -43,7 +45,8 @@ public class ItemTeleport extends Item {
             tooltip.add(Lang.teleportDimension(dimLoc).setStyle(Style.EMPTY.withColor(Formatting.GRAY)));
             tooltip.add(Lang.teleportLocation(dimLoc).setStyle(Style.EMPTY.withColor(Formatting.GRAY)));
         } else {
-            tooltip.add(Lang.TELEPORT_NOT_SET_GREY);
+            MutableText teleportNotSet = new TranslatableText(Lang.GUI_TELEPORT_NOT_SET).setStyle(Style.EMPTY.withColor(Formatting.GRAY));
+            tooltip.add(teleportNotSet);
         }
     }
 
@@ -71,13 +74,11 @@ public class ItemTeleport extends Item {
 
     @Override
     public void onStoppedUsing(ItemStack stack, World world, LivingEntity user, int remainingUseTicks) {
-        if (user instanceof PlayerEntity) {
+        if (user instanceof PlayerEntity && !world.isClient()) {
             if (MAX_USE_TIME - remainingUseTicks >= CHARGE_REQUIRED) {
-                tryTeleportPlayer(world, (PlayerEntity) user, Hand.MAIN_HAND);
+                tryTeleportPlayer((ServerWorld) world, (ServerPlayerEntity) user, Hand.MAIN_HAND);
             } else {
-                if (!world.isClient()) {
-                    world.playSound(null, user.getBlockPos(), SoundEvents.BLOCK_BEACON_DEACTIVATE, SoundCategory.BLOCKS, 1.0F, 1.0F);
-                }
+                world.playSound(null, user.getBlockPos(), SoundEvents.BLOCK_BEACON_DEACTIVATE, SoundCategory.BLOCKS, 1.0F, 1.0F);
             }
         }
     }
@@ -97,30 +98,39 @@ public class ItemTeleport extends Item {
         return MAX_USE_TIME;
     }
 
-    public void tryTeleportPlayer(World world, PlayerEntity playerEntity, Hand hand) {
-        ItemStack stack = playerEntity.getStackInHand(hand);
+    public void tryTeleportPlayer(ServerWorld world, ServerPlayerEntity player, Hand hand) {
+        ItemStack stack = player.getStackInHand(hand);
         DimensionLocation dimLoc = DimensionLocation.getStackDimensionLocation(stack);
-        if (dimLoc != null) {
-            BlockPos pos = playerEntity.getBlockPos();
+        if (!world.isClient()) {
+            if (dimLoc == null) {
+                this.onFailedTeleport(world, player);
+                MutableText text = new TranslatableText(Lang.MESSAGE_TELEPORT_NOT_SET).setStyle(Style.EMPTY.withColor(Formatting.RED));
+                player.sendMessage(text, true);
+                return;
+            }
+            if (!dimLoc.canFitEntity(world, player)) {
+                this.onFailedTeleport(world, player);
+                MutableText text = new TranslatableText(Lang.MESSAGE_TELEPORT_LOCATION_OBSTRUCTED).setStyle(Style.EMPTY.withColor(Formatting.RED));
+                player.sendMessage(text, true);
+                return;
+            }
+            BlockPos pos = player.getBlockPos();
+            // particles and sound at initial pos
             for (int i = 0; i < 25; i++) {
-                world.addParticle(ParticleTypes.PORTAL, (double)pos.getX() + 0.5D, playerEntity.getRandomBodyY() - 0.25D, (double)pos.getZ() + 0.5D, (EnderPorter.RANDOM.nextDouble() - 0.5D) * 2.0D, -EnderPorter.RANDOM.nextDouble(), (EnderPorter.RANDOM.nextDouble() - 0.5D) * 2.0D);
+                world.addParticle(ParticleTypes.PORTAL, (double)pos.getX() + 0.5D, player.getRandomBodyY() - 0.25D, (double)pos.getZ() + 0.5D, (EnderPorter.RANDOM.nextDouble() - 0.5D) * 2.0D, -EnderPorter.RANDOM.nextDouble(), (EnderPorter.RANDOM.nextDouble() - 0.5D) * 2.0D);
             }
-            if (world instanceof ServerWorld) {
-                world.playSound(null, playerEntity.getBlockPos(), SoundEvents.ENTITY_ENDERMAN_TELEPORT, SoundCategory.BLOCKS, 1.0F, 1.0F);
-                dimLoc.moveEntity(world, (ServerPlayerEntity)playerEntity);
-                world.playSound(null, playerEntity.getBlockPos(), SoundEvents.ENTITY_ENDERMAN_TELEPORT, SoundCategory.BLOCKS, 1.0F, 1.0F);
-            }
-            // particles at new location
-            for (int i = 0; i < PARTICLE_NUMBER; i++) {
-                world.addParticle(ParticleTypes.PORTAL, (double)dimLoc.getPosX() + 0.5D, (double)dimLoc.getPosY() + playerEntity.getHeight() * EnderPorter.RANDOM.nextDouble() - 0.25D, (double)dimLoc.getPosZ() + 0.5D, (EnderPorter.RANDOM.nextDouble() - 0.5D) * 2.0D, -EnderPorter.RANDOM.nextDouble(), (EnderPorter.RANDOM.nextDouble() - 0.5D) * 2.0D);
-            }
-            this.afterTeleport(world, playerEntity, hand);
-        } else {
-            if (!world.isClient()) {
-                world.playSound(null, playerEntity.getBlockPos(), SoundEvents.BLOCK_BEACON_DEACTIVATE, SoundCategory.BLOCKS, 1.0F, 1.0F);
-            }
+            world.playSound(null, player.getBlockPos(), SoundEvents.ENTITY_ENDERMAN_TELEPORT, SoundCategory.BLOCKS, 1.0F, 1.0F);
             
+            dimLoc.moveEntity(world, player);
+
+            // particles and sound at new pos
+            world.playSound(null, player.getBlockPos(), SoundEvents.ENTITY_ENDERMAN_TELEPORT,SoundCategory.BLOCKS, 1.0F, 1.0F);
+            this.afterTeleport(world, player, hand);
         }
+    }
+
+    public void onFailedTeleport(World world, PlayerEntity player) {
+        world.playSound(null, player.getBlockPos(), SoundEvents.BLOCK_BEACON_DEACTIVATE, SoundCategory.BLOCKS, 1.0F, 1.0F);
     }
 
     @Override

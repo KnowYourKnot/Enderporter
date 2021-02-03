@@ -1,16 +1,21 @@
 package com.knowyourknot.enderporter;
 
-import net.minecraft.text.MutableText;
-import net.minecraft.text.Style;
 import net.minecraft.text.TranslatableText;
-import net.minecraft.util.Formatting;
 
 public final class Lang {
     private Lang() {}
 
-    public static final TranslatableText TELEPORT_NOT_SET = new TranslatableText("enderporter.teleport_not_set");
-    public static final MutableText TELEPORT_NOT_SET_GREY = new TranslatableText("enderporter.teleport_not_set").setStyle(Style.EMPTY.withColor(Formatting.GRAY));
-    public static final TranslatableText DIFFERENT_DIMENSION = new TranslatableText("enderporter.gui.different_dimension");
+    public static final String GUI_ENDER_PORTER = "gui.enderporter.ender_porter";
+    public static final String GUI_TELEPORT_LOCATION = "gui.enderporter.teleport_location";
+    public static final String GUI_TELEPORT_NOT_SET = "gui.enderporter.teleport_not_set";
+    public static final String GUI_BLOCKS_AWAY = "gui.enderporter.blocks_away";
+    public static final String GUI_DIFFERENT_DIMENSION = "gui.enderporter.different_dimension";
+    public static final String GUI_PEARLS_REQUIRED = "gui.enderporter.pearls_required";
+
+    public static final String MESSAGE_TELEPORT_LOCATION_OBSTRUCTED = "message.enderporter.teleport_location_obstructed";
+    public static final String MESSAGE_TELEPORT_NOT_SET = "message.enderporter.teleport_not_set";
+    public static final String MESSAGE_NOT_ENOUGH_PEARLS = "message.enderporter.not_enough_pearls";
+    public static final String MESSAGE_INTERDIMENSIONAL_UPGRADE_MISSING = "message.enderporter.interdimensional_upgrade_missing";
 
     // modders can add localisations for their dimension names
     public static final TranslatableText teleportDimension(DimensionLocation dimLoc) {
@@ -19,14 +24,14 @@ public final class Lang {
     }
 
     public static final TranslatableText teleportLocation(DimensionLocation dimLoc) {
-        return new TranslatableText("enderporter.teleport_location", dimLoc.getPosX(), dimLoc.getPosY(), dimLoc.getPosZ());
+        return new TranslatableText(GUI_TELEPORT_LOCATION, dimLoc.getPosX(), dimLoc.getPosY(), dimLoc.getPosZ());
     }
 
     public static final TranslatableText blocksAway(int blocks) {
-        return new TranslatableText("enderporter.gui.blocks_away", blocks);
+        return new TranslatableText(GUI_BLOCKS_AWAY, blocks);
     }
 
     public static final TranslatableText pearlsRequired(int pearls) {
-        return new TranslatableText("enderporter.gui.pearls_required", pearls);
+        return new TranslatableText(GUI_PEARLS_REQUIRED, pearls);
     }
 }

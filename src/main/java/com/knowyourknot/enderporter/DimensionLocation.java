@@ -47,7 +47,7 @@ public class DimensionLocation {
     }
 
     public boolean isInDimension(Identifier dimensionId) {
-        return (dimensionId == this.getIdentifier());
+        return (this.getIdentifier().equals(dimensionId));
     }
 
     public float distanceTo(Vec3d pos) {

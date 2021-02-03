@@ -12,6 +12,7 @@ import net.minecraft.screen.ScreenHandler;
 import net.minecraft.text.MutableText;
 import net.minecraft.text.Style;
 import net.minecraft.text.Text;
+import net.minecraft.text.TranslatableText;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.Identifier;
 
@@ -86,16 +87,17 @@ public class EnderPorterScreen extends HandledScreen<ScreenHandler> {
                 textRenderer.draw(matrices, distance, distX, distY, 4210752);
                 textRenderer.draw(matrices, pearlsRequired, pearlsX, pearlsY, 4210752);
             } else {
-                int diffX = x + (INFO_SCREEN_WIDTH - textRenderer.getWidth(Lang.DIFFERENT_DIMENSION))/2;
+                TranslatableText differentDimension = new TranslatableText(Lang.GUI_DIFFERENT_DIMENSION);
+                int diffX = x + (INFO_SCREEN_WIDTH - textRenderer.getWidth(differentDimension))/2;
                 int diffY = posY + 12;
-                MutableText differentDimension = Lang.DIFFERENT_DIMENSION.copy();
                 if (!screenHandler.hasPearlsRequired()) {
                     differentDimension.setStyle(Style.EMPTY.withColor(Formatting.RED));
                 }
                 textRenderer.draw(matrices, differentDimension, diffX, diffY, 4210752);
             }            
         } else {
-            textRenderer.draw(matrices, Lang.TELEPORT_NOT_SET, x + (float) (INFO_SCREEN_WIDTH - textRenderer.getWidth(Lang.TELEPORT_NOT_SET)) / 2, y + 4f, 4210752);
+            TranslatableText teleportNotSet = new TranslatableText(Lang.GUI_TELEPORT_NOT_SET);
+            textRenderer.draw(matrices, teleportNotSet, x + (float) (INFO_SCREEN_WIDTH - textRenderer.getWidth(teleportNotSet)) / 2, y + 4f, 4210752);
         }
         drawMouseoverTooltip(matrices, mouseX, mouseY);
     }
