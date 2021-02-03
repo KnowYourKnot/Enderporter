@@ -27,6 +27,7 @@ import net.minecraft.util.Hand;
 import net.minecraft.util.TypedActionResult;
 import net.minecraft.util.UseAction;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 
 public class ItemTeleport extends Item {
@@ -117,13 +118,18 @@ public class ItemTeleport extends Item {
             BlockPos pos = player.getBlockPos();
             // particles and sound at initial pos
             for (int i = 0; i < 25; i++) {
-                world.addParticle(ParticleTypes.PORTAL, (double)pos.getX() + 0.5D, player.getRandomBodyY() - 0.25D, (double)pos.getZ() + 0.5D, (EnderPorter.RANDOM.nextDouble() - 0.5D) * 2.0D, -EnderPorter.RANDOM.nextDouble(), (EnderPorter.RANDOM.nextDouble() - 0.5D) * 2.0D);
+                Vec3d particlePos = new Vec3d((double)pos.getX() + 0.5D, player.getRandomBodyY() - 0.25D, (double)pos.getZ() + 0.5D);
+                Vec3d particleVel = new Vec3d((EnderPorter.RANDOM.nextDouble() - 0.5D) * 2.0D, -EnderPorter.RANDOM.nextDouble(), (EnderPorter.RANDOM.nextDouble() - 0.5D) * 2.0D);
+                world.spawnParticles(ParticleTypes.PORTAL, particlePos.getX(), particlePos.getY(), particlePos.getZ(), 1, particleVel.getX(), particleVel.getY(), particleVel.getZ(), particleVel.length());
             }
             world.playSound(null, player.getBlockPos(), SoundEvents.ENTITY_ENDERMAN_TELEPORT, SoundCategory.BLOCKS, 1.0F, 1.0F);
             
             dimLoc.moveEntity(world, player);
-
+            pos = player.getBlockPos();
             // particles and sound at new pos
+            for (int i = 0; i < 25; i++) {
+                world.spawnParticles(ParticleTypes.PORTAL, (double)pos.getX() + 0.5D, player.getRandomBodyY() - 0.25D, (double)pos.getZ() + 0.5D, 1, (EnderPorter.RANDOM.nextDouble() - 0.5D) * 2.0D, -EnderPorter.RANDOM.nextDouble(), (EnderPorter.RANDOM.nextDouble() - 0.5D) * 2.0D, 1);
+            }
             world.playSound(null, player.getBlockPos(), SoundEvents.ENTITY_ENDERMAN_TELEPORT,SoundCategory.BLOCKS, 1.0F, 1.0F);
             this.afterTeleport(world, player, hand);
         }

@@ -18,6 +18,7 @@ import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
+import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.math.Vec3i;
 import net.minecraft.util.registry.Registry;
 import net.minecraft.util.registry.RegistryKey;
@@ -44,8 +45,10 @@ public class DimPos {
         return (this.getIdentifier().equals(dimensionId));
     }
 
-    public float distanceTo(BlockPos pos) {
-        return (float) this.pos.getSquaredDistance((Vec3i) pos);
+    public float distanceTo(BlockPos target) {
+        Vec3d startPos = new Vec3d(pos.getX(), pos.getY(), pos.getZ());
+        Vec3d targetPos = new Vec3d(target.getX(), target.getY(), target.getZ());
+        return (float) startPos.distanceTo(targetPos);
     }
 
     public String toString() {

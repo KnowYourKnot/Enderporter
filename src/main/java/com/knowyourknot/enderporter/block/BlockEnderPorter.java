@@ -132,7 +132,7 @@ public class BlockEnderPorter extends BlockWithEntity {
             for (int i = 0; i < PARTICLE_NUMBER; i++) {
                 BlockPos particlePos = dimLoc.getPos().add(0.5D, player.getHeight() * EnderPorter.RANDOM.nextDouble() - 0.25D, 0.5D);
                 Vec3d particleVel = new Vec3d((EnderPorter.RANDOM.nextDouble() - 0.5D) * 2.0D, -EnderPorter.RANDOM.nextDouble(), (EnderPorter.RANDOM.nextDouble() - 0.5D) * 2.0D);
-                world.addParticle(ParticleTypes.PORTAL, particlePos.getX(), particlePos.getY(), particlePos.getZ(), particleVel.getX(), particleVel.getY(), particleVel.getZ());
+                world.spawnParticles(ParticleTypes.PORTAL, particlePos.getX(), particlePos.getY(), particlePos.getZ(), 1, particleVel.getX(), particleVel.getY(), particleVel.getZ(), particleVel.length());
             }
         }
     }
