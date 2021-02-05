@@ -1,6 +1,7 @@
 package com.knowyourknot.enderporter;
 
 import net.minecraft.advancement.criterion.Criteria;
+import net.minecraft.block.Block;
 import net.minecraft.block.Blocks;
 import net.minecraft.entity.effect.StatusEffectInstance;
 import net.minecraft.entity.player.PlayerEntity;
@@ -19,7 +20,6 @@ import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.Vec3d;
-import net.minecraft.util.math.Vec3i;
 import net.minecraft.util.registry.Registry;
 import net.minecraft.util.registry.RegistryKey;
 import net.minecraft.world.World;
@@ -62,6 +62,9 @@ public class DimPos {
         BlockPos newPos = context.getBlockPos();
         Direction side = context.getSide();
         // TODO test with whiterabbit https://modrinth.com/mod/WhiteRabbit
+        // the offset when setting the location to the underside of a block aren't quite right
+        // there is no way to fix this without getting the size of the entity making the dimpos
+        // and I want the dimpos to be independent of the entity.
         return new DimPos(newIdentifier, newPos.add(side.getOffsetX(), side.getOffsetY(), side.getOffsetZ()));
     }
 
@@ -148,13 +151,15 @@ public class DimPos {
             for (int x = 0; x < diameter; x++) {
                 for (int z = 0; z < diameter; z++) {
                     BlockPos posToCheck = initialPos.add(x, y, z);
-                    if (destination.getBlockState(posToCheck).getBlock() != Blocks.AIR) {
+                    Block blockAtPos = destination.getBlockState(posToCheck).getBlock();
+                    if (blockAtPos != Blocks.AIR && blockAtPos != Blocks.CAVE_AIR && blockAtPos != Blocks.VOID_AIR) {
+                        EnderPorter.LOGGER.info(posToCheck);
+                        EnderPorter.LOGGER.info(destination.getBlockState(posToCheck).getBlock());
                         return false;
                     }
                 }
             }
         }
-
         return true;
     }
 
@@ -211,4 +216,7 @@ public class DimPos {
         Criteria.CHANGED_DIMENSION.trigger(player, registryKey, registryKey2);
     }
 
+    public boolean isInVoid() {
+        return this.pos.getY() < 0 || this.pos.getY() > 255;
+    }
 }

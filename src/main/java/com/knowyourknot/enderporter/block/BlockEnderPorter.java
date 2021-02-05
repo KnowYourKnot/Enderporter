@@ -39,7 +39,10 @@ import net.minecraft.world.BlockView;
 import net.minecraft.world.World;
 
 public class BlockEnderPorter extends BlockWithEntity {
-    private static final int CHARGE_REQUIRED = 20;
+    private static final String CHARGE_REQUIRED = "porter_charge_time";
+    public static final String TRAVEL_LIMIT = "travel_limit";
+    public static final String ALLOW_TELEPORT_TO_VOID = "allow_teleport_to_void";
+    public static final String ALLOW_INTERDIMENSIONAL_TRAVEL = "allow_interdimensional_travel";
     public static final int PARTICLE_NUMBER = 20;
 
     public BlockEnderPorter(Settings settings) {
@@ -93,47 +96,78 @@ public class BlockEnderPorter extends BlockWithEntity {
         super.onEntityCollision(state, world, pos, entity);
     }
 
-    public void playerCharge(ServerWorld world, BlockPos pos, EntityEnderPorter blockEntity, ServerPlayerEntity player) {
+    public void playerCharge(ServerWorld world, BlockPos pos, EntityEnderPorter blockEntity,
+            ServerPlayerEntity player) {
         blockEntity.addPlayerToCharger(player);
         int charge = blockEntity.getPlayerCharge(player);
-        if (charge >= CHARGE_REQUIRED) {
-            DimPos dimLoc = blockEntity.getDimensionLocation();
-            if (dimLoc == null) {
-                this.onFailedTeleport(world, pos, player, blockEntity);
-                MutableText text = new TranslatableText(Lang.MESSAGE_TELEPORT_NOT_SET).setStyle(Style.EMPTY.withColor(Formatting.RED));
-                player.sendMessage(text, true);
-                return;
-            }
-            if (blockEntity.needsDimUpgrade() && !blockEntity.hasDimUpgrade()) {
-                this.onFailedTeleport(world, pos, player, blockEntity);
-                MutableText text = new TranslatableText(Lang.MESSAGE_INTERDIMENSIONAL_UPGRADE_MISSING).setStyle(Style.EMPTY.withColor(Formatting.RED));
-                player.sendMessage(text, true);
-                return;
-            }
-            if (!blockEntity.hasPearlsRequired()) {
-                this.onFailedTeleport(world, pos, player, blockEntity);
-                MutableText text = new TranslatableText(Lang.MESSAGE_NOT_ENOUGH_PEARLS).setStyle(Style.EMPTY.withColor(Formatting.RED));
-                player.sendMessage(text, true);
-                return;
-            }
-            if (!dimLoc.canFitEntity(world, player)) {
-                this.onFailedTeleport(world, pos, player, blockEntity);
-                MutableText text = new TranslatableText(Lang.MESSAGE_TELEPORT_LOCATION_OBSTRUCTED).setStyle(Style.EMPTY.withColor(Formatting.RED));
-                player.sendMessage(text, true);
-                return;
-            }
-            blockEntity.removePlayerFromCharger(player);
-            world.playSound(null, pos, SoundEvents.ENTITY_ENDERMAN_TELEPORT, SoundCategory.BLOCKS, 1.0F, 1.0F);
-            player.setPose(EntityPose.STANDING);
-            dimLoc.moveEntity(world, player);
-            blockEntity.onTeleport();
-            //particles and sound after teleport
-            world.playSound(null, new BlockPos(dimLoc.getPos()), SoundEvents.ENTITY_ENDERMAN_TELEPORT, SoundCategory.BLOCKS, 1.0F, 1.0F);
-            for (int i = 0; i < PARTICLE_NUMBER; i++) {
-                BlockPos particlePos = dimLoc.getPos().add(0.5D, player.getHeight() * EnderPorter.RANDOM.nextDouble() - 0.25D, 0.5D);
-                Vec3d particleVel = new Vec3d((EnderPorter.RANDOM.nextDouble() - 0.5D) * 2.0D, -EnderPorter.RANDOM.nextDouble(), (EnderPorter.RANDOM.nextDouble() - 0.5D) * 2.0D);
-                world.spawnParticles(ParticleTypes.PORTAL, particlePos.getX(), particlePos.getY(), particlePos.getZ(), 1, particleVel.getX(), particleVel.getY(), particleVel.getZ(), particleVel.length());
-            }
+        if (charge < EnderPorter.getConfigInt(CHARGE_REQUIRED)) {
+            return;
+        }
+        DimPos dimLoc = blockEntity.getDimensionLocation();
+        if (dimLoc == null) {
+            this.onFailedTeleport(world, pos, player, blockEntity);
+            MutableText text = new TranslatableText(Lang.MESSAGE_TELEPORT_NOT_SET)
+                    .setStyle(Style.EMPTY.withColor(Formatting.RED));
+            player.sendMessage(text, true);
+            return;
+        }
+        if (dimLoc.isInVoid() && !EnderPorter.getConfigBool(ALLOW_TELEPORT_TO_VOID)) {
+            this.onFailedTeleport(world, pos, player, blockEntity);
+            MutableText text = new TranslatableText(Lang.MESSAGE_VOID).setStyle(Style.EMPTY.withColor(Formatting.RED));
+            player.sendMessage(text, true);
+            return;
+        }
+        int travelLimit = EnderPorter.getConfigInt(TRAVEL_LIMIT);
+        if (!blockEntity.needsDimUpgrade() && travelLimit >= 0 && travelLimit < blockEntity.getBlocksAway()) {
+            this.onFailedTeleport(world, pos, player, blockEntity);
+            MutableText text = new TranslatableText(Lang.MESSAGE_TRAVEL_LIMIT)
+                    .setStyle(Style.EMPTY.withColor(Formatting.RED));
+            player.sendMessage(text, true);
+            return;
+        }
+        if (blockEntity.needsDimUpgrade() && !EnderPorter.getConfigBool(ALLOW_INTERDIMENSIONAL_TRAVEL)) {
+            this.onFailedTeleport(world, pos, player, blockEntity);
+            MutableText text = new TranslatableText(Lang.MESSAGE_NO_INTERDIMENSIONAL_TRAVEL)
+                    .setStyle(Style.EMPTY.withColor(Formatting.RED));
+            player.sendMessage(text, true);
+            return;
+        }
+        if (blockEntity.needsDimUpgrade() && !blockEntity.hasDimUpgrade()) {
+            this.onFailedTeleport(world, pos, player, blockEntity);
+            MutableText text = new TranslatableText(Lang.MESSAGE_INTERDIMENSIONAL_UPGRADE_MISSING)
+                    .setStyle(Style.EMPTY.withColor(Formatting.RED));
+            player.sendMessage(text, true);
+            return;
+        }
+        if (!blockEntity.hasPearlsRequired()) {
+            this.onFailedTeleport(world, pos, player, blockEntity);
+            MutableText text = new TranslatableText(Lang.MESSAGE_NOT_ENOUGH_PEARLS)
+                    .setStyle(Style.EMPTY.withColor(Formatting.RED));
+            player.sendMessage(text, true);
+            return;
+        }
+        if (!dimLoc.canFitEntity(world, player)) {
+            this.onFailedTeleport(world, pos, player, blockEntity);
+            MutableText text = new TranslatableText(Lang.MESSAGE_TELEPORT_LOCATION_OBSTRUCTED)
+                    .setStyle(Style.EMPTY.withColor(Formatting.RED));
+            player.sendMessage(text, true);
+            return;
+        }
+        blockEntity.removePlayerFromCharger(player);
+        world.playSound(null, pos, SoundEvents.ENTITY_ENDERMAN_TELEPORT, SoundCategory.BLOCKS, 1.0F, 1.0F);
+        player.setPose(EntityPose.STANDING);
+        dimLoc.moveEntity(world, player);
+        blockEntity.onTeleport();
+        // particles and sound after teleport
+        world.playSound(null, new BlockPos(dimLoc.getPos()), SoundEvents.ENTITY_ENDERMAN_TELEPORT, SoundCategory.BLOCKS,
+                1.0F, 1.0F);
+        for (int i = 0; i < PARTICLE_NUMBER; i++) {
+            BlockPos particlePos = dimLoc.getPos().add(0.5D,
+                    player.getHeight() * EnderPorter.RANDOM.nextDouble() - 0.25D, 0.5D);
+            Vec3d particleVel = new Vec3d((EnderPorter.RANDOM.nextDouble() - 0.5D) * 2.0D,
+                    -EnderPorter.RANDOM.nextDouble(), (EnderPorter.RANDOM.nextDouble() - 0.5D) * 2.0D);
+            world.spawnParticles(ParticleTypes.PORTAL, particlePos.getX(), particlePos.getY(), particlePos.getZ(), 1,
+                    particleVel.getX(), particleVel.getY(), particleVel.getZ(), particleVel.length());
         }
     }
 

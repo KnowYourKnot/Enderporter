@@ -30,6 +30,8 @@ import net.minecraft.util.math.Direction;
 
 public class EntityEnderPorter extends BlockEntity
         implements Tickable, IInventory, NamedScreenHandlerFactory, BlockEntityClientSerializable, SidedInventory {
+    private static final String BLOCKS_PER_PEARL = "blocks_per_pearl";
+    
     private final DefaultedList<ItemStack> items = DefaultedList.ofSize(12, ItemStack.EMPTY);
     private final PlayerCharger playerCharger = new PlayerCharger();
 
@@ -99,7 +101,7 @@ public class EntityEnderPorter extends BlockEntity
         if (hasDimUpgrade()) {
             return 0;
         } else {
-            return 30 * (int) Math.pow(2, getRangeUpgrades());
+            return EnderPorter.getConfigInt(BLOCKS_PER_PEARL) * (int) Math.pow(2, getRangeUpgrades());
         }
     }
 

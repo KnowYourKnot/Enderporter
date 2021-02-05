@@ -16,6 +16,9 @@ public final class Lang {
     public static final String MESSAGE_TELEPORT_NOT_SET = "message.enderporter.teleport_not_set";
     public static final String MESSAGE_NOT_ENOUGH_PEARLS = "message.enderporter.not_enough_pearls";
     public static final String MESSAGE_INTERDIMENSIONAL_UPGRADE_MISSING = "message.enderporter.interdimensional_upgrade_missing";
+    public static final String MESSAGE_VOID = "message.enderporter.void";
+    public static final String MESSAGE_TRAVEL_LIMIT = "message.enderporter.travel_limit";
+    public static final String MESSAGE_NO_INTERDIMENSIONAL_TRAVEL = "message.enderporter.no_interdimensional_travel";
 
     // modders can add localisations for their dimension names
     public static final TranslatableText teleportDimension(DimPos dimLoc) {

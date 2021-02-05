@@ -24,6 +24,9 @@
     ],
     "client": [
       "com.knowyourknot.enderporter.EnderPorterClient"
+    ],
+    "modmenu": [
+      "com.knowyourknot.enderporter.EnderPorterModMenu"
     ]
   },
   "mixins": [
