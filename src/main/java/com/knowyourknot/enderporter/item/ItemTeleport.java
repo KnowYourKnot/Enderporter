@@ -127,7 +127,7 @@ public class ItemTeleport extends Item {
         int travelLimit = EnderPorter.getConfigInt(TRAVEL_LIMIT);
         if (dimLoc.isInDimension(world.getRegistryKey().getValue()) && travelLimit >= 0 && travelLimit < dimLoc.distanceTo(player.getBlockPos())) {
             this.onFailedTeleport(world, player);
-            MutableText text = new TranslatableText(Lang.MESSAGE_TRAVEL_LIMIT)
+            MutableText text = Lang.messageTravelLimit(travelLimit)
                     .setStyle(Style.EMPTY.withColor(Formatting.RED));
             player.sendMessage(text, true);
             return;

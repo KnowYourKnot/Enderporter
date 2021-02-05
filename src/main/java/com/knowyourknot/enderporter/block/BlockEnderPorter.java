@@ -120,7 +120,7 @@ public class BlockEnderPorter extends BlockWithEntity {
         int travelLimit = EnderPorter.getConfigInt(TRAVEL_LIMIT);
         if (!blockEntity.needsDimUpgrade() && travelLimit >= 0 && travelLimit < blockEntity.getBlocksAway()) {
             this.onFailedTeleport(world, pos, player, blockEntity);
-            MutableText text = new TranslatableText(Lang.MESSAGE_TRAVEL_LIMIT)
+            MutableText text = Lang.messageTravelLimit(travelLimit)
                     .setStyle(Style.EMPTY.withColor(Formatting.RED));
             player.sendMessage(text, true);
             return;

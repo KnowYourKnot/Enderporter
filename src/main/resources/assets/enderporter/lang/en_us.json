@@ -18,6 +18,17 @@
     "message.enderporter.teleport_not_set": "Teleport not set!",
     "message.enderporter.not_enough_pearls": "Not enough pearls!",
     "message.enderporter.interdimensional_upgrade_missing": "Interdimensional upgrade missing!",
+    "message.enderporter.void": "Teleport location set to the void!",
+    "message.enderporter.travel_limit": "Teleport location breaks %d block travel limit!",
+    "message.enderporter.no_interdimensional_travel": "Interdimensional travel is not allowed!",
+
+    "config.enderporter": "Enderporter Config",
+    "config.enderporter.allow_free_travel": "Allow Free Travel",
+    "config.enderporter.blocks_per_pearl": "Blocks Per Pearl",
+    "config.enderporter.travel_limit": "Travel Limit",
+    "config.enderporter.porter_charge_time": "Porter Charge Time",
+    "config.enderporter.allow_interdimensional_travel": "Allow Interdimensional Travel",
+    "config.enderporter.allow_teleport_to_void": "Allow Teleport to Void",
 
     "dimension.minecraft.overworld": "Overworld",
     "dimension.minecraft.the_nether": "Nether",

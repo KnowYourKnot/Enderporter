@@ -37,4 +37,8 @@ public final class Lang {
     public static final TranslatableText pearlsRequired(int pearls) {
         return new TranslatableText(GUI_PEARLS_REQUIRED, pearls);
     }
+
+    public static final TranslatableText messageTravelLimit(int travelLimit) {
+        return new TranslatableText(MESSAGE_TRAVEL_LIMIT, travelLimit);
+    }
 }
