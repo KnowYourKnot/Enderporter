@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "id": "enderporter",
-  "version": "${version}",
+  "version": "1.0.0",
 
   "name": "Enderporter",
   "description": "This mod adds blocks and items which allow for teleportation within or between dimensions.",
@@ -9,11 +9,12 @@
     "KnowYourKnot"
   ],
   "contact": {
-    "homepage": "https://fabricmc.net/",
-    "sources": "https://github.com/FabricMC/fabric-example-mod"
+    "homepage": "https://www.curseforge.com/minecraft/mc-mods/knowyourknot-enderporter",
+    "sources": "https://github.com/KnowYourKnot/Enderporter",
+    "issues": "https://github.com/KnowYourKnot/Enderporter/issues"
   },
 
-  "license": "CC0-1.0",
+  "license": "MIT",
   "icon": "assets/enderporter/icon.png",
 
   "environment": "*",
