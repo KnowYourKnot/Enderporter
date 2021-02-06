@@ -153,8 +153,6 @@ public class DimPos {
                     BlockPos posToCheck = initialPos.add(x, y, z);
                     Block blockAtPos = destination.getBlockState(posToCheck).getBlock();
                     if (blockAtPos != Blocks.AIR && blockAtPos != Blocks.CAVE_AIR && blockAtPos != Blocks.VOID_AIR) {
-                        EnderPorter.LOGGER.info(posToCheck);
-                        EnderPorter.LOGGER.info(destination.getBlockState(posToCheck).getBlock());
                         return false;
                     }
                 }

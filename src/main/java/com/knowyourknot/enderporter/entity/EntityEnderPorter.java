@@ -9,6 +9,7 @@ import com.knowyourknot.enderporter.inventory.IInventory;
 import com.knowyourknot.enderporter.item.ItemTeleport;
 
 import net.fabricmc.fabric.api.block.entity.BlockEntityClientSerializable;
+import net.fabricmc.fabric.api.screenhandler.v1.ExtendedScreenHandlerFactory;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.entity.player.PlayerEntity;
@@ -18,9 +19,10 @@ import net.minecraft.inventory.SidedInventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.screen.NamedScreenHandlerFactory;
+import net.minecraft.network.PacketByteBuf;
 import net.minecraft.screen.PropertyDelegate;
 import net.minecraft.screen.ScreenHandler;
+import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.Text;
 import net.minecraft.text.TranslatableText;
 import net.minecraft.util.Identifier;
@@ -29,11 +31,14 @@ import net.minecraft.util.collection.DefaultedList;
 import net.minecraft.util.math.Direction;
 
 public class EntityEnderPorter extends BlockEntity
-        implements Tickable, IInventory, NamedScreenHandlerFactory, BlockEntityClientSerializable, SidedInventory {
+        implements Tickable, IInventory, ExtendedScreenHandlerFactory, BlockEntityClientSerializable, SidedInventory {
+    private static final String ALLOW_FREE_TRAVEL = "allow_free_travel";
     private static final String BLOCKS_PER_PEARL = "blocks_per_pearl";
-    
+
     private final DefaultedList<ItemStack> items = DefaultedList.ofSize(12, ItemStack.EMPTY);
     private final PlayerCharger playerCharger = new PlayerCharger();
+
+    private boolean allowFreeTravel = false;
 
     public EntityEnderPorter() {
         super(EnderPorter.ENTITY_ENDER_PORTER);
@@ -108,6 +113,9 @@ public class EntityEnderPorter extends BlockEntity
     // number of pearls player needs to tp to current dimLoc
     public int getPearlsRequired() {
         int blocksPerPearl = getBlocksPerPearl();
+        if (EnderPorter.getConfigBool(ALLOW_FREE_TRAVEL)) {
+            return 0;
+        }
         if (blocksPerPearl > 0) {
             return (getBlocksAway() / blocksPerPearl);
         }
@@ -134,8 +142,10 @@ public class EntityEnderPorter extends BlockEntity
                 return getBlocksAway();
             } else if (index == 1) {
                 return getPearlsRequired();
-            } else {
+            } else if (index == 2) {
                 return hasPearlsRequired() ? 1 : 0;
+            } else {
+                return freeTravelAllowed() ? 1 : 0;
             }
         }
 
@@ -146,9 +156,16 @@ public class EntityEnderPorter extends BlockEntity
 
         @Override
         public int size() {
-            return 3;
+            return 4;
         }
     };
+
+    public boolean freeTravelAllowed() {
+        if (world.isClient) {
+            return allowFreeTravel;
+        }
+        return EnderPorter.getConfigBool(ALLOW_FREE_TRAVEL);
+    }
 
     // this seems to be called twice when an item is added to the inventory, but
     // only once when an item is removed
@@ -169,6 +186,7 @@ public class EntityEnderPorter extends BlockEntity
 
     @Override
     public ScreenHandler createMenu(int syncId, PlayerInventory playerInventory, PlayerEntity player) {
+        markDirty();
         return new EnderPorterScreenHandler(syncId, playerInventory, this, propertyDelegate);
     }
 
@@ -187,6 +205,8 @@ public class EntityEnderPorter extends BlockEntity
     public boolean isValid(int slot, ItemStack stack) {
         if (slot == 0) {
             return stack.getItem() instanceof ItemTeleport;
+        } else if (EnderPorter.getConfigBool(ALLOW_FREE_TRAVEL)) {
+            return false;
         } else if (slot == 1) {
             return stack.getItem() == EnderPorter.UPGRADE_RANGE;
         } else if (slot == 2) {
@@ -218,18 +238,23 @@ public class EntityEnderPorter extends BlockEntity
         this.items.clear(); // fromTag does not remove non-present items as it assumes the inventory it is
                             // filling is empty
         Inventories.fromTag(tag, this.items);
+        allowFreeTravel = (tag.getInt("easy_mode") == 1);
     }
 
     // write on server
     @Override
     public CompoundTag toClientTag(CompoundTag tag) {
         Inventories.toTag(tag, this.items);
+        tag.putInt("easy_mode", EnderPorter.getConfigBool(ALLOW_FREE_TRAVEL) ? 1 : 0);
         return tag;
     }
 
     @Override
     public int[] getAvailableSlots(Direction side) {
-        int[] availableSlots = new int[getItems().size()];
+        if (EnderPorter.getConfigBool(ALLOW_FREE_TRAVEL)) {
+            return new int[0];
+        }
+        int[] availableSlots = new int[9];
         for (int i = 0; i < 9; i++) {
             availableSlots[i] = i + 3;
         }
@@ -238,12 +263,12 @@ public class EntityEnderPorter extends BlockEntity
 
     @Override
     public boolean canInsert(int slot, ItemStack stack, Direction dir) {
-        return dir != Direction.UP;
+        return !EnderPorter.getConfigBool(ALLOW_FREE_TRAVEL) && dir != Direction.UP;
     }
 
     @Override
     public boolean canExtract(int slot, ItemStack stack, Direction dir) {
-        return true;
+        return !EnderPorter.getConfigBool(ALLOW_FREE_TRAVEL) && dir != Direction.UP;
     }
 
     @Override
@@ -269,5 +294,10 @@ public class EntityEnderPorter extends BlockEntity
 
     public int getPlayerCharge(PlayerEntity player) {
         return this.playerCharger.getCharge(player);
+    }
+
+    @Override
+    public void writeScreenOpeningData(ServerPlayerEntity player, PacketByteBuf buf) {
+        buf.writeBoolean(EnderPorter.getConfigBool(ALLOW_FREE_TRAVEL));
     }
 }

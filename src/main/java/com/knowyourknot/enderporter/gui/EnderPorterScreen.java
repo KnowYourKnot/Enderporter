@@ -17,6 +17,7 @@ import net.minecraft.util.Formatting;
 import net.minecraft.util.Identifier;
 
 public class EnderPorterScreen extends HandledScreen<ScreenHandler> {
+    private static final Identifier TEXTURE = new Identifier("enderporter", "textures/gui/ender_porter.png");
     public static final int TEXTURE_WIDTH = 176;
     public static final int TEXTURE_HEIGHT = 205;
     public static final int INFO_SCREEN_X = 44;
@@ -24,22 +25,25 @@ public class EnderPorterScreen extends HandledScreen<ScreenHandler> {
     public static final int INFO_SCREEN_WIDTH = 123;
     public static final int INFO_SCREEN_HEIGHT = 68;
 
-    // TODO change gui and behaviour based on config options
-    private static final Identifier TEXTURE = new Identifier("enderporter", "textures/gui/ender_porter.png");
-    private static final Identifier TEXTURE_MINIMAL = new Identifier("enderporter", "textures/gui/ender_porter.png");
+    private static final Identifier TEXTURE_MINIMAL = new Identifier("enderporter", "textures/gui/ender_porter_minimal.png");
+
     EnderPorterScreenHandler screenHandler;
 
     public EnderPorterScreen(ScreenHandler handler, PlayerInventory inventory, Text title) {
         super(handler, inventory, title);
+        screenHandler = (EnderPorterScreenHandler) handler;
         this.backgroundWidth =  TEXTURE_WIDTH;
         this.backgroundHeight = TEXTURE_HEIGHT;
-        screenHandler = (EnderPorterScreenHandler) handler;
     }
 
     @Override
     protected void drawBackground(MatrixStack matrices, float delta, int mouseX, int mouseY) {
         RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
-        client.getTextureManager().bindTexture(TEXTURE);
+        if (this.screenHandler.freeTravelAllowed()) {
+            client.getTextureManager().bindTexture(TEXTURE_MINIMAL);
+        } else {
+            client.getTextureManager().bindTexture(TEXTURE);
+        }
         int x = (width - backgroundWidth) / 2;
         int y = (height - backgroundHeight) / 2;
         drawTexture(matrices, x, y, 0, 0, backgroundWidth, backgroundHeight);
@@ -56,7 +60,7 @@ public class EnderPorterScreen extends HandledScreen<ScreenHandler> {
         int x = (width - backgroundWidth) / 2 + INFO_SCREEN_X;
         int y = (height - backgroundHeight) / 2 + INFO_SCREEN_Y;
         super.render(matrices, mouseX, mouseY, delta);
-        // write porter location in gui
+        // write teleport location in gui
         ItemStack stack = screenHandler.getStacks().get(0);
         DimPos dimLoc = DimPos.getStackDimPos(stack);
         if (dimLoc != null) {
@@ -85,7 +89,9 @@ public class EnderPorterScreen extends HandledScreen<ScreenHandler> {
                 int pearlsY = distY + 12;
 
                 textRenderer.draw(matrices, distance, distX, distY, 4210752);
-                textRenderer.draw(matrices, pearlsRequired, pearlsX, pearlsY, 4210752);
+                if (!screenHandler.freeTravelAllowed()) {
+                    textRenderer.draw(matrices, pearlsRequired, pearlsX, pearlsY, 4210752);
+                }
             } else {
                 TranslatableText differentDimension = new TranslatableText(Lang.GUI_DIFFERENT_DIMENSION);
                 int diffX = x + (INFO_SCREEN_WIDTH - textRenderer.getWidth(differentDimension))/2;

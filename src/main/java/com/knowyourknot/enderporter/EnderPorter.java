@@ -6,7 +6,6 @@ import java.util.Random;
 import com.knowyourknot.enderporter.block.BlockEnderPorter;
 import com.knowyourknot.enderporter.entity.EntityEnderPorter;
 import com.knowyourknot.enderporter.gui.EnderPorterScreenHandler;
-import com.knowyourknot.enderporter.item.DebugItem;
 import com.knowyourknot.enderporter.item.PortablePorter;
 import com.knowyourknot.enderporter.item.StablePearl;
 import com.oroarmor.config.ConfigItem;
@@ -70,7 +69,6 @@ public class EnderPorter implements ModInitializer {
 
 	public static final Item STABLE_PEARL = new StablePearl(new FabricItemSettings().group(ItemGroup.TRANSPORTATION).maxCount(1));
 	public static final Item PORTABLE_PORTER = new PortablePorter(new FabricItemSettings().group(ItemGroup.TRANSPORTATION).maxCount(1));
-	public static final Item DEBUG_ITEM = new DebugItem(new FabricItemSettings().group(ItemGroup.TRANSPORTATION).maxCount(1));
 	public static final Item UPGRADE_RANGE = new Item(new FabricItemSettings().group(ItemGroup.TRANSPORTATION).maxCount(16));
 	public static final Item UPGRADE_DIM = new Item(new FabricItemSettings().group(ItemGroup.TRANSPORTATION).maxCount(1));
 
@@ -78,13 +76,12 @@ public class EnderPorter implements ModInitializer {
 	public static final ScreenHandlerType<EnderPorterScreenHandler> ENDER_PORTER_SCREEN_HANDLER;
 	
 	static {
-		ENDER_PORTER_SCREEN_HANDLER = ScreenHandlerRegistry.registerSimple(new Identifier(MOD_ID, "ender_porter_screen_handler"), EnderPorterScreenHandler::new);
+		ENDER_PORTER_SCREEN_HANDLER = ScreenHandlerRegistry.registerExtended(new Identifier(MOD_ID, "ender_porter_screen_handler"), EnderPorterScreenHandler::new);
 	}
 	
 	// TODO add tp to dimension command
 	@Override
 	public void onInitialize() {
-		EnderPorter.LOGGER.info(CONFIG);
 		CommandRegistrationCallback.EVENT.register(new ConfigCommand(CONFIG)::register);
 		EnderPorter.LOGGER.info("Config loaded. Initialising Enderporter...");
 
@@ -94,10 +91,9 @@ public class EnderPorter implements ModInitializer {
 
 		Registry.register(Registry.ITEM, new Identifier(MOD_ID, "stable_pearl"), STABLE_PEARL);
 		Registry.register(Registry.ITEM, new Identifier(MOD_ID, "portable_porter"), PORTABLE_PORTER);
-		Registry.register(Registry.ITEM, new Identifier(MOD_ID, "debug_item"), DEBUG_ITEM);
 		Registry.register(Registry.ITEM, new Identifier(MOD_ID, "upgrade_range"), UPGRADE_RANGE);
 		Registry.register(Registry.ITEM, new Identifier(MOD_ID, "upgrade_dim"), UPGRADE_DIM);
 
-		LOGGER.info("Enderporter initialised!");
+		EnderPorter.LOGGER.info("Enderporter initialised!");
 	}
 }
