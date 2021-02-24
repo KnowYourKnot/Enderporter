@@ -40,18 +40,6 @@ public class EnderPorterScreenHandler extends ScreenHandler {
         Item[] validTeleportItems = { EnderPorter.STABLE_PEARL, EnderPorter.PORTABLE_PORTER };
         this.addSlot(new SlotItemSpecific(inventory, 0, 12, 45, validTeleportItems)); // tp item slot
 
-        // inv
-        for (int x = 0; x < 9; x++) {
-            for (int y = 0; y < 3; y++) {
-                this.addSlot(new Slot(playerInventory, 9 + x + 9 * y, 8 + 18 * x, 123 + 18 * y));
-            }
-        }
-
-        // hotbar
-        for (int x = 0; x < 9; x++) {
-            this.addSlot(new Slot(playerInventory, x, 8 + 18 * x, 181));
-        }
-
         if (!this.freeTravelAllowed()) {
             Item[] upgradeRange = { EnderPorter.UPGRADE_RANGE };
             this.addSlot(new SlotItemSpecific(inventory, 1, 8, 19, upgradeRange)); // range slot
@@ -63,6 +51,18 @@ public class EnderPorterScreenHandler extends ScreenHandler {
             for (int x = 0; x < 9; x++) {
                 this.addSlot(new SlotItemSpecific(inventory, 3 + x, 8 + 18 * x, 97, enderPearl));
             }            
+        }
+
+        // inv
+        for (int x = 0; x < 9; x++) {
+            for (int y = 0; y < 3; y++) {
+                this.addSlot(new Slot(playerInventory, 9 + x + 9 * y, 8 + 18 * x, 123 + 18 * y));
+            }
+        }
+
+        // hotbar
+        for (int x = 0; x < 9; x++) {
+            this.addSlot(new Slot(playerInventory, x, 8 + 18 * x, 181));
         }
 
     }
