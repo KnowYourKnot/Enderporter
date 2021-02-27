@@ -17,6 +17,7 @@ import net.minecraft.server.PlayerManager;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.Identifier;
+import net.minecraft.util.InvalidIdentifierException;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.Vec3d;
@@ -81,7 +82,12 @@ public class DimPos {
         if (data.contains(DIMENSION_NAMESPACE) && data.contains(DIMENSION_PATH) && data.contains(POS_X) && data.contains(POS_Y) && data.contains(POS_Z)) {
             String namespace = data.getString(DIMENSION_NAMESPACE);
             String path = data.getString(DIMENSION_PATH);
-            Identifier newIdentifier = new Identifier(namespace, path);
+            Identifier newIdentifier;
+            try {
+                newIdentifier = new Identifier(namespace, path);
+            } catch (InvalidIdentifierException e) {
+                return null;
+            }
             BlockPos newPos = new BlockPos(data.getFloat(POS_X), data.getFloat(POS_Y), data.getFloat(POS_Z));
             return new DimPos(newIdentifier, newPos);
         } else {
