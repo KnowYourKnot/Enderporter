@@ -62,8 +62,7 @@ public class DimPos {
 
         BlockPos newPos = context.getBlockPos();
         Direction side = context.getSide();
-        // TODO test with whiterabbit https://modrinth.com/mod/WhiteRabbit
-        // the offset when setting the location to the underside of a block aren't quite right
+        // the offset when setting the location to the underside of a block isn't quite right
         // there is no way to fix this without getting the size of the entity making the dimpos
         // and I want the dimpos to be independent of the entity.
         return new DimPos(newIdentifier, newPos.add(side.getOffsetX(), side.getOffsetY(), side.getOffsetZ()));
@@ -220,7 +219,9 @@ public class DimPos {
         Criteria.CHANGED_DIMENSION.trigger(player, registryKey, registryKey2);
     }
 
-    public boolean isInVoid() {
-        return this.pos.getY() < 0 || this.pos.getY() > 255;
+    public boolean isInVoid(ServerWorld world) {
+        RegistryKey<World> registryKey = RegistryKey.of(Registry.DIMENSION, this.identifier);
+        ServerWorld destination = world.getServer().getWorld(registryKey);
+        return (destination == null) || (destination.getBlockState(this.pos).getBlock() == Blocks.VOID_AIR);
     }
 }

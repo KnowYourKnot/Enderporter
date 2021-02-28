@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "id": "enderporter",
-  "version": "1.0.1",
+  "version": "1.0.2",
 
   "name": "Enderporter",
   "description": "This mod adds blocks and items which allow for teleportation within or between dimensions.",

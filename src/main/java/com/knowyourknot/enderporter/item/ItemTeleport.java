@@ -118,7 +118,7 @@ public class ItemTeleport extends Item {
             player.sendMessage(text, true);
             return;
         }
-        if (dimLoc.isInVoid() && !EnderPorter.getConfigBool(ALLOW_TELEPORT_TO_VOID)) {
+        if (dimLoc.isInVoid(world) && !EnderPorter.getConfigBool(ALLOW_TELEPORT_TO_VOID)) {
             this.onFailedTeleport(world, player);
             MutableText text = new TranslatableText(Lang.MESSAGE_VOID).setStyle(Style.EMPTY.withColor(Formatting.RED));
             player.sendMessage(text, true);

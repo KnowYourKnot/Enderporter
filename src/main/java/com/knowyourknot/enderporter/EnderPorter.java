@@ -79,7 +79,6 @@ public class EnderPorter implements ModInitializer {
 		ENDER_PORTER_SCREEN_HANDLER = ScreenHandlerRegistry.registerExtended(new Identifier(MOD_ID, "ender_porter_screen_handler"), EnderPorterScreenHandler::new);
 	}
 	
-	// TODO add tp to dimension command
 	@Override
 	public void onInitialize() {
 		CommandRegistrationCallback.EVENT.register(new ConfigCommand(CONFIG)::register);

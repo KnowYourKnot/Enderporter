@@ -77,7 +77,6 @@ public class BlockEnderPorter extends BlockWithEntity {
             BlockEntity entity = world.getBlockEntity(pos);
             if (entity instanceof EntityEnderPorter) {
                 ItemScatterer.spawn(world, pos, (EntityEnderPorter) entity);
-                world.updateComparators(pos, this);
             }
         }
         super.onStateReplaced(state, world, pos, newState, moved);
@@ -111,7 +110,7 @@ public class BlockEnderPorter extends BlockWithEntity {
             player.sendMessage(text, true);
             return;
         }
-        if (dimLoc.isInVoid() && !EnderPorter.getConfigBool(ALLOW_TELEPORT_TO_VOID)) {
+        if (dimLoc.isInVoid(world) && !EnderPorter.getConfigBool(ALLOW_TELEPORT_TO_VOID)) {
             this.onFailedTeleport(world, pos, player, blockEntity);
             MutableText text = new TranslatableText(Lang.MESSAGE_VOID).setStyle(Style.EMPTY.withColor(Formatting.RED));
             player.sendMessage(text, true);
